@@ -1,17 +1,4 @@
 def hash_password(password, salt=None):
-    """
-    Hashes the password with salt as an optional parameter.
-
-    If salt is not provided, generates random salt.
-    If salt is less than 16 chars, fills the string to 16 chars.
-    If salt is longer than 16 chars, cuts salt to 16 chars.
-
-    :param str password: password to hash
-    :param str salt: salt to hash, default None
-
-    :rtype: str
-    :return: hashed password
-    """
 
     # generate salt if not provided
     if salt is None:
@@ -34,20 +21,6 @@ def hash_password(password, salt=None):
 
     # return salt & hash joined
     return salt + t_sha.hexdigest()
-
-def generate_salt():
-    """
-    Generates a 16-character random salt.
-
-    :rtype: str
-    :return: str with generated salt
-    """
-    salt = ""
-    for i in range(0, 16):
-
-        # get a random element from the iterable
-        salt += random.choice(ALPHABET)
-    return salt
 
 def check_password(pass_to_check, hashed):
     """
@@ -77,35 +50,3 @@ def check_password(pass_to_check, hashed):
 
     # compare hashes. If equal, return True
     return new_hash[16:] == hash_to_check
-
-
-class User:
-    def __init__(self, username="", password="", salt=""):
-        self._id = -1
-        self.username = username
-        self._hashed_password = hash_password(password, salt)
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def hashed_password(self):
-        return self._hashed_password
-
-    def set_password(self, password, salt=""):
-        self._hashed_password = hash_password(password, salt)
-
-    @hashed_password.setter
-    def hashed_password(self, password):
-        self.set_password(password)
-
-    def save_to_db(self, cursor):
-        if self._id == -1:
-            sql = """INSERT INTO users(username, hashed_password)
-                            VALUES(%s, %s) RETURNING id"""
-            values = (self.username, self.hashed_password)
-            cursor.execute(sql, values)
-            self._id = cursor.fetchone()[0]  # or cursor.fetchone()['id']
-            return True
-        return False

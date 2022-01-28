@@ -1,6 +1,7 @@
 from psycopg2 import connect, OperationalError
 from psycopg2.errors import DuplicateDatabase, DuplicateTable
-from models import hash_password, generate_salt, check_password
+from models import hash_password
+
 
 sql1 = """CREATE DATABASE users;"""
 
@@ -99,7 +100,7 @@ class User
                             VALUES(%s, %s) RETURNING id"""
             values = (self.username, self.hashed_password)
             cursor.execute(sql, values)
-            self._id = cursor.fetchone()[0]  # or cursor.fetchone()['id']
+            self._id = cursor.fetchone()[0]
             return True
         else:
             sql = """UPDATE Users SET username=%s, hashed_password=%s
@@ -125,7 +126,7 @@ class User
     @staticmethod
     def load_user_by_id(cursor, id_):
         sql = "SELECT id, username, hashed_password FROM users WHERE id=%s"
-        cursor.execute(sql, (id_,))  # (id_, ) - cause we need a tuple
+        cursor.execute(sql, (id_,))
         data = cursor.fetchone()
         if data:
             id_, username, hashed_password = data
@@ -203,3 +204,4 @@ class Message
             loaded_message.text = text
             messages.append(loaded_message)
         return messages
+
